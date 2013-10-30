@@ -21,8 +21,8 @@ UltrasonicSensor::UltrasonicSensor(unsigned int triggerPin,
 
 UltrasonicSensor::~UltrasonicSensor()
 {
-  delete m_newPing; m_newPing = 0;
   UltrasonicRanging::instance()->detach(this);
+  delete m_newPing; m_newPing = 0;
 }
 
 UltrasonicSensor* UltrasonicSensor::next()
