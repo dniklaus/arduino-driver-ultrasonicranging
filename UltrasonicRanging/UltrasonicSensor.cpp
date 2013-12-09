@@ -64,10 +64,6 @@ void UltrasonicSensor::echoCheck()
       {
         ultrasonicSensor->setDistanceCM(newPing->ping_result / US_ROUNDTRIP_CM);
       }
-      else
-      {
-        ultrasonicSensor->setDistanceCM(0);
-      }
     }
   }
 }
