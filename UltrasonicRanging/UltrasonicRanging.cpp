@@ -100,7 +100,7 @@ void UltrasonicRanging::handleSensorTrigger()
 }
 
 UltrasonicRanging::UltrasonicRanging()
-: m_triggerTimer(new Timer(new UltrasonicRangingTrigTimerAdapter(this), true, 50))
+: m_triggerTimer(new Timer(new UltrasonicRangingTrigTimerAdapter(this), Timer::IS_RECURRING, 50))
 , m_ultrasonicSensorList(0)
 { }
 

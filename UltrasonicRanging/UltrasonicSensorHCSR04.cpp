@@ -7,7 +7,7 @@
 
 #include "UltrasonicSensorHCSR04.h"
 
-const unsigned int UltrasonicSensorHCSR04::s_defaultMaxDistance = 200;
+const unsigned int UltrasonicSensorHCSR04::DEFAULT_MAX_DIST = 200;
 
 UltrasonicSensorHCSR04::UltrasonicSensorHCSR04(unsigned int triggerPin, unsigned int echoPin, unsigned int maxDistance)
 : UltrasonicSensor(triggerPin, echoPin, maxDistance)

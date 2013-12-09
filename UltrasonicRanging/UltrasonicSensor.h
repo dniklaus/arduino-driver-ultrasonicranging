@@ -24,6 +24,9 @@ private:
   static void echoCheck();
   void setDistanceCM(unsigned long distanceCM);
 
+public:
+  static const unsigned long DISTANCE_LIMIT_EXCEEDED;
+
 private:
   NewPing* m_newPing;
   UltrasonicSensor* m_nextUltrasonicSensor;

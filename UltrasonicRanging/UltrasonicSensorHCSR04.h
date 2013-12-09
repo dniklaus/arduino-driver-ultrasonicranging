@@ -15,14 +15,14 @@
 class UltrasonicSensorHCSR04 : public UltrasonicSensor
 {
 public:
-  UltrasonicSensorHCSR04(unsigned int triggerPin, unsigned int echoPin, unsigned int maxDistance = s_defaultMaxDistance);
+  UltrasonicSensorHCSR04(unsigned int triggerPin, unsigned int echoPin, unsigned int maxDistance = DEFAULT_MAX_DIST);
   virtual ~UltrasonicSensorHCSR04();
 
-private:
+public:
   /**
    * Maximum default distance we want to ping for: 200 [cm]. Maximum sensor distance is rated at 400-500 [cm].
    */
-  static const unsigned int s_defaultMaxDistance;
+  static const unsigned int DEFAULT_MAX_DIST;
 
 private: // forbidden default functions
   UltrasonicSensorHCSR04& operator = (const UltrasonicSensorHCSR04& );  // assignment operator

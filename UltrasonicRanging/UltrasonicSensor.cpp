@@ -9,6 +9,8 @@
 #include "UltrasonicRanging.h"
 #include "UltrasonicSensor.h"
 
+const unsigned long UltrasonicSensor::DISTANCE_LIMIT_EXCEEDED = -1;
+
 UltrasonicSensor::UltrasonicSensor(unsigned int triggerPin,
                                    unsigned int echoPin,
                                    unsigned int maxDistance)
@@ -40,7 +42,7 @@ void UltrasonicSensor::startPing()
   if (0 != m_newPing)
   {
     m_newPing->timer_stop();                            // Make sure previous timer is canceled before starting a new ping
-    m_distanceCM = 0;                                   // Set distance zero in case there's no ping echo for this sensor.
+    m_distanceCM = DISTANCE_LIMIT_EXCEEDED;             // Set distance infinite in case there's no ping echo for this sensor.
     m_newPing->ping_timer(UltrasonicSensor::echoCheck); // Do the ping (processing continues, interrupt will call echoCheck to look for echo).
   }
 }
@@ -61,6 +63,10 @@ void UltrasonicSensor::echoCheck()
       if (newPing->check_timer() > 0)
       {
         ultrasonicSensor->setDistanceCM(newPing->ping_result / US_ROUNDTRIP_CM);
+      }
+      else
+      {
+        ultrasonicSensor->setDistanceCM(0);
       }
     }
   }
