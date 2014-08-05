@@ -10,13 +10,19 @@
 #include "UltrasonicSensor.h"
 
 const unsigned long UltrasonicSensor::DISTANCE_LIMIT_EXCEEDED = -1;
+const unsigned long UltrasonicSensor::s_defaultObstacleRange = 15;
 
 UltrasonicSensor::UltrasonicSensor(unsigned int triggerPin,
                                    unsigned int echoPin,
-                                   unsigned int maxDistance)
+                                   unsigned int maxDistance,
+                                   unsigned long obstacleRangeCM)
 : m_newPing(new NewPing(triggerPin, echoPin, maxDistance))
 , m_nextUltrasonicSensor(0)
+, m_adapter(0)
 , m_distanceCM(0)
+, m_obstacleRangeCM(obstacleRangeCM)
+, m_isObstacleDetected(false)
+, m_isObstacleDetectionActive(false)
 {
   UltrasonicRanging::instance()->attach(this);
 }
@@ -25,6 +31,16 @@ UltrasonicSensor::~UltrasonicSensor()
 {
   UltrasonicRanging::instance()->detach(this);
   delete m_newPing; m_newPing = 0;
+}
+
+void UltrasonicSensor::attachAdapter(UltrasonicSensorAdapter* adapter)
+{
+  m_adapter = adapter;
+}
+
+UltrasonicSensorAdapter* UltrasonicSensor::adapter()
+{
+  return m_adapter;
 }
 
 UltrasonicSensor* UltrasonicSensor::next()
@@ -39,6 +55,7 @@ void UltrasonicSensor::setNext(UltrasonicSensor* ultrasonicSensor)
 
 void UltrasonicSensor::startPing()
 {
+  checkObstacle();
   if (0 != m_newPing)
   {
     m_newPing->timer_stop();                            // Make sure previous timer is canceled before starting a new ping
@@ -54,6 +71,7 @@ NewPing* UltrasonicSensor::getNewPing()
 
 void UltrasonicSensor::echoCheck()
 {
+  noInterrupts();
   UltrasonicSensor* ultrasonicSensor = UltrasonicRanging::currentlyMeasuringSensor();
   if (0 != ultrasonicSensor)
   {
@@ -62,18 +80,46 @@ void UltrasonicSensor::echoCheck()
     {
       if (newPing->check_timer() > 0)
       {
-        ultrasonicSensor->setDistanceCM(newPing->ping_result / US_ROUNDTRIP_CM);
+        ultrasonicSensor->updateDistanceCM(newPing->ping_result / US_ROUNDTRIP_CM);
       }
     }
   }
+  interrupts();
 }
 
-void UltrasonicSensor::setDistanceCM(unsigned long distanceCM)
+void UltrasonicSensor::updateDistanceCM(unsigned long distanceCM)
 {
   m_distanceCM = distanceCM;
 }
 
+void UltrasonicSensor::checkObstacle()
+{
+  unsigned long distanceCM = getDistanceCM();
+  bool isObstacleDetected = m_isObstacleDetectionActive && (getDistanceCM() > 0) && (getDistanceCM() < m_obstacleRangeCM);
+  if ((0 != m_adapter) && (isObstacleDetected != m_isObstacleDetected))
+  {
+    m_adapter->notifyObstacleDetectionChange(isObstacleDetected);
+  }
+  m_isObstacleDetected = isObstacleDetected;
+}
+
+
 unsigned long UltrasonicSensor::getDistanceCM()
 {
-  return m_distanceCM;
+  unsigned long distanceCM = 0;
+  noInterrupts();
+  distanceCM = m_distanceCM;
+  interrupts();
+  return distanceCM;
+}
+
+bool UltrasonicSensor::isObstacleDetected()
+{
+  return m_isObstacleDetected;
+}
+
+void UltrasonicSensor::setIsObstacleDetectionActive(bool isActive)
+{
+  m_isObstacleDetectionActive = isActive;
+  checkObstacle();
 }
