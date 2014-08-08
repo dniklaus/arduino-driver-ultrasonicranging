@@ -84,13 +84,16 @@ void UltrasonicRanging::detach(UltrasonicSensor* ultrasonicSensor)
 
 void UltrasonicRanging::handleSensorTrigger()
 {
-  if ((0 == s_currentUltrasonicSensor) && (0 != m_ultrasonicSensorList))
+  if (0 != m_ultrasonicSensorList)
   {
-    s_currentUltrasonicSensor = m_ultrasonicSensorList;
-  }
-  else
-  {
-    s_currentUltrasonicSensor = s_currentUltrasonicSensor->next();
+    if (0 == s_currentUltrasonicSensor)
+    {
+      s_currentUltrasonicSensor = m_ultrasonicSensorList;
+    }
+    else
+    {
+      s_currentUltrasonicSensor = s_currentUltrasonicSensor->next();
+    }
   }
   if (0 != s_currentUltrasonicSensor)
   {
