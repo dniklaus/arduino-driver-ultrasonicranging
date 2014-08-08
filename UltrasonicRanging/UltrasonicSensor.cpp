@@ -95,12 +95,13 @@ void UltrasonicSensor::updateDistanceCM(unsigned long distanceCM)
 void UltrasonicSensor::checkObstacle()
 {
   unsigned long distanceCM = getDistanceCM();
-  bool isObstacleDetected = m_isObstacleDetectionActive && (getDistanceCM() > 0) && (getDistanceCM() < m_obstacleRangeCM);
-  if ((0 != m_adapter) && (isObstacleDetected != m_isObstacleDetected))
+  bool isObstacleDetected = m_isObstacleDetectionActive && (distanceCM > 0) && (distanceCM < m_obstacleRangeCM);
+  bool haveToNotify = (isObstacleDetected != m_isObstacleDetected);
+  m_isObstacleDetected = isObstacleDetected;
+  if ((0 != m_adapter) && haveToNotify)
   {
     m_adapter->notifyObstacleDetectionChange(isObstacleDetected);
   }
-  m_isObstacleDetected = isObstacleDetected;
 }
 
 
