@@ -43,8 +43,7 @@ public:
   void setIsObstacleDetectionActive(bool isActive);
 
 private:
-  static void echoCheck();
-  void updateDistanceCM(unsigned long distanceCM);
+  static void echoCheck(void* context);
   void checkObstacle();
 
 public:
@@ -57,8 +56,8 @@ private:
   NewPing* m_newPing;
   UltrasonicSensor* m_nextUltrasonicSensor;
   UltrasonicSensorAdapter* m_adapter;
-  unsigned long m_distanceCM;
   unsigned long m_obstacleRangeCM;
+  volatile unsigned long m_pingResultTimeMicros;
   bool m_isObstacleDetected;
   bool m_isObstacleDetectionActive;
 

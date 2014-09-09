@@ -19,8 +19,8 @@ UltrasonicSensor::UltrasonicSensor(unsigned int triggerPin,
 : m_newPing(new NewPing(triggerPin, echoPin, maxDistance))
 , m_nextUltrasonicSensor(0)
 , m_adapter(0)
-, m_distanceCM(0)
 , m_obstacleRangeCM(obstacleRangeCM)
+, m_pingResultTimeMicros(0)
 , m_isObstacleDetected(false)
 , m_isObstacleDetectionActive(false)
 {
@@ -59,8 +59,8 @@ void UltrasonicSensor::startPing()
   if (0 != m_newPing)
   {
     m_newPing->timer_stop();                            // Make sure previous timer is canceled before starting a new ping
-    m_distanceCM = DISTANCE_LIMIT_EXCEEDED;             // Set distance infinite in case there's no ping echo for this sensor.
-    m_newPing->ping_timer(UltrasonicSensor::echoCheck); // Do the ping (processing continues, interrupt will call echoCheck to look for echo).
+    m_pingResultTimeMicros = DISTANCE_LIMIT_EXCEEDED;             // Set distance infinite in case there's no ping echo for this sensor.
+    m_newPing->ping_timer(UltrasonicSensor::echoCheck, (void*)this); // Do the ping (processing continues, interrupt will call echoCheck to look for echo).
   }
 }
 
@@ -69,10 +69,9 @@ NewPing* UltrasonicSensor::getNewPing()
   return m_newPing;
 }
 
-void UltrasonicSensor::echoCheck()
+void UltrasonicSensor::echoCheck(void* context)
 {
-  noInterrupts();
-  UltrasonicSensor* ultrasonicSensor = UltrasonicRanging::currentlyMeasuringSensor();
+  UltrasonicSensor* ultrasonicSensor = (UltrasonicSensor*)context;
   if (0 != ultrasonicSensor)
   {
     NewPing* newPing = ultrasonicSensor->getNewPing();
@@ -80,22 +79,15 @@ void UltrasonicSensor::echoCheck()
     {
       if (newPing->check_timer() > 0)
       {
-        ultrasonicSensor->updateDistanceCM(newPing->ping_result / US_ROUNDTRIP_CM);
+        ultrasonicSensor->m_pingResultTimeMicros = newPing->ping_result;
       }
     }
   }
-  interrupts();
-}
-
-void UltrasonicSensor::updateDistanceCM(unsigned long distanceCM)
-{
-  m_distanceCM = distanceCM;
 }
 
 void UltrasonicSensor::checkObstacle()
 {
-  unsigned long distanceCM = getDistanceCM();
-  bool isObstacleDetected = m_isObstacleDetectionActive && (distanceCM > 0) && (distanceCM < m_obstacleRangeCM);
+  bool isObstacleDetected = m_isObstacleDetectionActive && (getDistanceCM() > 0) && (getDistanceCM() < m_obstacleRangeCM);
   bool haveToNotify = (isObstacleDetected != m_isObstacleDetected);
   m_isObstacleDetected = isObstacleDetected;
   if ((0 != m_adapter) && haveToNotify)
@@ -107,11 +99,7 @@ void UltrasonicSensor::checkObstacle()
 
 unsigned long UltrasonicSensor::getDistanceCM()
 {
-  unsigned long distanceCM = 0;
-  noInterrupts();
-  distanceCM = m_distanceCM;
-  interrupts();
-  return distanceCM;
+  return ((DISTANCE_LIMIT_EXCEEDED == m_pingResultTimeMicros) ? DISTANCE_LIMIT_EXCEEDED : (m_pingResultTimeMicros / US_ROUNDTRIP_CM));
 }
 
 bool UltrasonicSensor::isObstacleDetected()
