@@ -8,17 +8,17 @@
 #ifndef ULTRASONICSENSOR_H_
 #define ULTRASONICSENSOR_H_
 
-class NewPing;
-
 //-----------------------------------------------------------------------------
 
 class UltrasonicSensorAdapter
 {
 public:
+  virtual void startPing() = 0;
+  virtual unsigned long getEchoPulseDurationTimeMicros() = 0;
   virtual void notifyObstacleDetectionChange(bool isObstacleDetected) = 0;
   virtual ~UltrasonicSensorAdapter() { }
 protected:
-  UltrasonicSensorAdapter() { }
+  UltrasonicSensorAdapter() { }                                           // abstract
 private: // forbidden default functions
   UltrasonicSensorAdapter& operator = (const UltrasonicSensorAdapter& );  // assignment operator
   UltrasonicSensorAdapter(const UltrasonicSensorAdapter& src);            // copy constructor
@@ -29,35 +29,33 @@ private: // forbidden default functions
 class UltrasonicSensor
 {
 public:
-  UltrasonicSensor(unsigned int triggerPin, unsigned int echoPin,
-                   unsigned int maxDistance, unsigned long obstacleRangeCM = s_defaultObstacleRange);
+  UltrasonicSensor(unsigned int maxDistance, unsigned long obstacleRangeCM = s_defaultObstacleRange);
   virtual ~UltrasonicSensor();
   void attachAdapter(UltrasonicSensorAdapter* adapter);
   UltrasonicSensorAdapter* adapter();
   UltrasonicSensor* next();
   void setNext(UltrasonicSensor* ultrasonicSensor);
   void startPing();
-  NewPing* getNewPing();
   unsigned long getDistanceCM();
   bool isObstacleDetected();
   void setIsObstacleDetectionActive(bool isActive);
 
 private:
-  static void echoCheck(void* context);
   void checkObstacle();
 
 public:
   static const unsigned long DISTANCE_LIMIT_EXCEEDED;
+  static const unsigned int  s_microsPerCm;
 
 private:
   static const unsigned long s_defaultObstacleRange;
 
 private:
-  NewPing* m_newPing;
   UltrasonicSensor* m_nextUltrasonicSensor;
   UltrasonicSensorAdapter* m_adapter;
-  unsigned long m_obstacleRangeCM;
-  volatile unsigned long m_pingResultTimeMicros;
+  volatile unsigned long m_obstacleRangeCM;
+  volatile unsigned long m_echoStartTimeMicros;
+  volatile unsigned long m_durationTimeMicros;
   bool m_isObstacleDetected;
   bool m_isObstacleDetectionActive;
 

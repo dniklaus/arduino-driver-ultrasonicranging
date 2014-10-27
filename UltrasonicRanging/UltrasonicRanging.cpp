@@ -6,7 +6,6 @@
  */
 
 #include "Timer.h"
-#include <NewPing.h>
 #include "UltrasonicSensor.h"
 #include "UltrasonicRanging.h"
 

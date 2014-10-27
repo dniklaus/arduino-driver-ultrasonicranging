@@ -15,7 +15,7 @@
 class UltrasonicSensorHCSR04 : public UltrasonicSensor
 {
 public:
-  UltrasonicSensorHCSR04(unsigned int triggerPin, unsigned int echoPin, unsigned int maxDistance = DEFAULT_MAX_DIST);
+  UltrasonicSensorHCSR04(unsigned int maxDistance = DEFAULT_MAX_DIST);
   virtual ~UltrasonicSensorHCSR04();
 
 public:
