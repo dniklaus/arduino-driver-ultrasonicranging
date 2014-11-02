@@ -4,5 +4,4 @@ Contains [HCSR04](http://www.dx.com/p/hc-sr04-ultrasonic-sensor-distance-measuri
 
 Requires:
 * Timer (https://github.com/dniklaus/arduino-utils-timer)
-* Arduino NewPing library (https://code.google.com/p/arduino-new-ping/)
 
