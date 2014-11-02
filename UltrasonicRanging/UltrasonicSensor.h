@@ -14,7 +14,7 @@ class UltrasonicSensorAdapter
 {
 public:
   virtual void startPing() = 0;
-  virtual unsigned long getEchoPulseDurationTimeMicros() = 0;
+  virtual unsigned long getEchoTimeMicros() = 0;
   virtual void notifyObstacleDetectionChange(bool isObstacleDetected) = 0;
   virtual ~UltrasonicSensorAdapter() { }
 protected:
@@ -29,7 +29,7 @@ private: // forbidden default functions
 class UltrasonicSensor
 {
 public:
-  UltrasonicSensor(unsigned int maxDistance, unsigned long obstacleRangeCM = s_defaultObstacleRange);
+  UltrasonicSensor(unsigned int maxDistanceCM, unsigned long obstacleRangeCM = s_defaultObstacleRange);
   virtual ~UltrasonicSensor();
   void attachAdapter(UltrasonicSensorAdapter* adapter);
   UltrasonicSensorAdapter* adapter();
@@ -53,9 +53,10 @@ private:
 private:
   UltrasonicSensor* m_nextUltrasonicSensor;
   UltrasonicSensorAdapter* m_adapter;
-  volatile unsigned long m_obstacleRangeCM;
-  volatile unsigned long m_echoStartTimeMicros;
-  volatile unsigned long m_durationTimeMicros;
+  unsigned long m_distanceCM;
+  unsigned long m_maxDistanceCM;
+  unsigned long m_obstacleRangeCM;
+  unsigned long m_echoTimeMicros;
   bool m_isObstacleDetected;
   bool m_isObstacleDetectionActive;
 
