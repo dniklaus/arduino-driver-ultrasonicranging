@@ -9,7 +9,6 @@
 #define ULTRASONICRANGING_H_
 
 class UltrasonicSensor;
-class NewPing;
 class Timer;
 
 /*
